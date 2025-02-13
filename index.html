@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bubu, Will You Be My Valentine?</title>
+  <!-- Google Fonts for a playful, modern look -->
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Variables for easy theme management */
+    :root {
+      --primary-color: #ff6b81;
+      --secondary-color: #a29bfe;
+      --bg-gradient-start: #ffdde1;
+      --bg-gradient-end: #ee9ca7;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-color: #333;
+    }
+
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      font-family: 'Roboto', sans-serif;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* The content container */
+    .container {
+      background: var(--card-bg);
+      padding: 40px 60px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      font-family: 'Pacifico', cursive;
+      color: var(--primary-color);
+      margin-bottom: 30px;
+      font-size: 2.8em;
+    }
+
+    /* Button styles */
+    button {
+      border: none;
+      border-radius: 50px;
+      padding: 12px 24px;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: transform 0.3s ease, top 0.3s ease, left 0.3s ease;
+    }
+
+    #yes {
+      background-color: var(--primary-color);
+      color: white;
+      margin-right: 20px;
+    }
+
+    #yes:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* The "No" button is now fixed so it’s positioned relative to the viewport */
+    #no {
+      background-color: var(--secondary-color);
+      color: white;
+      position: fixed;
+      border-radius: 50px;
+      z-index: 2;
+    }
+
+    #no:hover {
+      transform: scale(1.1);
+    }
+
+    /* Floating hearts in the background for extra cuteness */
+    .heart {
+      position: absolute;
+      font-size: 2em;
+      color: rgba(255, 0, 0, 0.3);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px) scale(0.5);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Will you be my Valentine? &#10084;</h1>
+    <button id="yes" onclick="yesClicked()">Yes</button>
+    <!-- The "No" button is included in the HTML for semantic grouping,
+         but its fixed positioning lets it roam anywhere on the screen -->
+    <button id="no">No</button>
+  </div>
+
+  <!-- Floating heart elements for a playful background effect -->
+  <div class="heart" style="top: 10%; left: 20%;">&#10084;</div>
+  <div class="heart" style="top: 40%; left: 70%; animation-delay: 2s;">&#10084;</div>
+  <div class="heart" style="top: 70%; left: 30%; animation-delay: 4s;">&#10084;</div>
+
+  <script>
+    const noButton = document.getElementById('no');
+
+    // Moves the "No" button to a random position within the viewport
+    function moveButton() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const btnRect = noButton.getBoundingClientRect();
+      const btnWidth = btnRect.width;
+      const btnHeight = btnRect.height;
+      
+      // Calculate new random positions ensuring the button stays fully within the viewport
+      const newLeft = Math.random() * (vw - btnWidth);
+      const newTop = Math.random() * (vh - btnHeight);
+      noButton.style.left = newLeft + 'px';
+      noButton.style.top = newTop + 'px';
+    }
+
+    // Move the "No" button when the cursor gets close to it
+    document.addEventListener('mousemove', (e) => {
+      const btnRect = noButton.getBoundingClientRect();
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+      // Calculate the center of the button
+      const btnCenterX = btnRect.left + btnRect.width / 2;
+      const btnCenterY = btnRect.top + btnRect.height / 2;
+      // If the cursor is within 100px, move the button
+      const distance = Math.hypot(mouseX - btnCenterX, mouseY - btnCenterY);
+      if (distance < 100) {
+        moveButton();
+      }
+    });
+
+    // Extra precaution: if the cursor directly hovers over the "No" button, move it
+    noButton.addEventListener('mouseenter', moveButton);
+
+    // Action for clicking the "Yes" button
+    function yesClicked() {
+      alert("Yay! I love you too Pookie!");
+    }
+
+    // Set an initial random position for the "No" button when the page loads
+    window.onload = moveButton;
+  </script>
+</body>
+</html>
