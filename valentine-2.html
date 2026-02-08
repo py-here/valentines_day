@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>A Game For My Bubu 💕</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  :root {
+    --pink1: #FFF0F5;
+    --pink2: #FFE4EC;
+    --pink3: #FFB6C1;
+    --pink4: #FF91A4;
+    --pink5: #FF69B4;
+    --pink6: #FF1493;
+    --cream: #FFF8F0;
+    --lavender: #E8D5F5;
+  }
+
+  body {
+    font-family: 'Quicksand', sans-serif;
+    background: var(--pink1);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+
+  #game-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ===== FLOATING HEARTS BACKGROUND ===== */
+  .bg-heart {
+    position: absolute;
+    opacity: 0.25;
+    animation: floatUp linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(100vh) rotate(0deg) scale(1); opacity: 0; }
+    10% { opacity: 0.25; }
+    90% { opacity: 0.25; }
+    100% { transform: translateY(-100px) rotate(360deg) scale(0.5); opacity: 0; }
+  }
+
+  /* ===== SCREENS ===== */
+  .screen {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  .screen.fade-out {
+    animation: fadeOut 0.6s ease forwards;
+  }
+
+  @keyframes fadeOut {
+    to { opacity: 0; }
+  }
+
+  /* ===== KAWAII BUTTON ===== */
+  .kawaii-btn {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    padding: 18px 52px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--pink5), var(--pink6));
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 25px rgba(255,105,180,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .kawaii-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 35px rgba(255,105,180,0.5);
+  }
+
+  .kawaii-btn:active {
+    transform: translateY(0) scale(0.97);
+  }
+
+  .kawaii-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+    animation: shimmer 4s infinite linear;
+  }
+
+  @keyframes shimmer {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* ===== LANDING SCREEN ===== */
+  .landing-title {
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    font-weight: 700;
+    color: var(--pink6);
+    text-shadow: 2px 2px 0 rgba(255,105,180,0.2);
+    margin-bottom: 10px;
+    animation: bounceIn 1s ease;
+    text-align: center;
+    padding: 0 20px;
+  }
+
+  .landing-subtitle {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: var(--pink4);
+    margin-bottom: 40px;
+    animation: fadeInUp 1s ease 0.3s both;
+  }
+
+  .landing-heart-char {
+    font-size: clamp(70px, 15vw, 110px);
+    animation: heartbeat 1.5s ease infinite, fadeInUp 1s ease;
+    margin-bottom: 30px;
+    filter: drop-shadow(0 10px 30px rgba(255,20,147,0.3));
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.15); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.1); }
+  }
+
+  @keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.95); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes fadeInUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ===== LOADING SCREEN ===== */
+  .loading-screen {
+    background: linear-gradient(135deg, var(--pink1), var(--pink2));
+  }
+
+  .loading-spinner {
+    width: 60px; height: 60px;
+    border: 5px solid var(--pink2);
+    border-top: 5px solid var(--pink6);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 25px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--pink6);
+    text-align: center;
+    max-width: 80%;
+  }
+
+  .loading-substep {
+    font-size: 0.95rem;
+    color: var(--pink4);
+    margin-top: 10px;
+    animation: fadeInUp 0.5s ease;
+  }
+
+  .loading-step-icon {
+    font-size: 1.1rem;
+    margin-right: 5px;
+  }
+
+  /* ===== LEVEL HEADER ===== */
+  .level-header {
+    position: absolute;
+    top: 20px; left: 0; right: 0;
+    text-align: center;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  .level-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 8px 24px;
+    border-radius: 30px;
+    font-weight: 700;
+    color: var(--pink6);
+    font-size: 0.85rem;
+    box-shadow: 0 4px 15px rgba(255,105,180,0.2);
+    margin-bottom: 5px;
+  }
+
+  .level-title {
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
+    font-weight: 700;
+    color: white;
+    text-shadow: 2px 2px 10px rgba(255,20,147,0.6), 0 0 30px rgba(255,105,180,0.3);
+  }
+
+  /* ===== PROGRESS BAR (Level 1) ===== */
+  .progress-container {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 30px;
+    box-shadow: 0 4px 20px rgba(255,105,180,0.2);
+  }
+
+  .progress-heart {
+    font-size: 20px;
+    transition: all 0.4s ease;
+    filter: grayscale(100%) opacity(0.3);
+  }
+
+  .progress-heart.caught {
+    filter: grayscale(0%) opacity(1);
+    animation: popIn 0.5s ease;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+  }
+
+  /* ===== MESSAGE BUBBLE ===== */
+  .message-bubble {
+    position: absolute;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 12px 28px;
+    border-radius: 25px;
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    font-weight: 600;
+    color: var(--pink6);
+    box-shadow: 0 6px 25px rgba(255,105,180,0.25);
+    z-index: 25;
+    animation: popIn 0.5s ease;
+    white-space: nowrap;
+  }
+
+  .message-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 12px solid rgba(255,255,255,0.92);
+  }
+
+  /* ===== WEBCAM + OVERLAY ===== */
+  .game-canvas-container {
+    position: relative;
+    width: 100%; height: 100%;
+  }
+
+  .video-feed {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+    z-index: 1;
+  }
+
+  .camera-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(255, 240, 248, 0.25);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .game-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 3;
+  }
+
+  .fallback-bg {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #FFE4EC, #FFF0F5, #E8D5F5);
+  }
+
+  /* ===== FALLING HEARTS ===== */
+  .falling-heart {
+    position: absolute;
+    z-index: 5;
+    cursor: pointer;
+    animation: wobble 2s ease infinite;
+    filter: drop-shadow(0 4px 10px rgba(255,105,180,0.35));
+  }
+
+  @keyframes wobble {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+  }
+
+  /* ===== HAND CURSOR ===== */
+  .hand-cursor {
+    position: absolute;
+    width: 70px; height: 70px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,105,180,0.45) 0%, rgba(255,105,180,0.08) 60%, transparent 70%);
+    border: 3px solid rgba(255,105,180,0.5);
+    pointer-events: none;
+    z-index: 10;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 25px rgba(255,105,180,0.25);
+    display: none;
+    transition: left 0.05s linear, top 0.05s linear;
+  }
+
+  /* ===== SPARKLE ===== */
+  .sparkle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: sparklePop 0.8s ease forwards;
+    z-index: 30;
+  }
+
+  @keyframes sparklePop {
+    0% { transform: scale(0) translate(0, 0); opacity: 1; }
+    100% { transform: scale(1) translate(var(--tx), var(--ty)); opacity: 0; }
+  }
+
+  /* ===== TRANSITIONS ===== */
+  .transition-screen {
+    background: linear-gradient(135deg, var(--pink2), var(--pink1), var(--lavender));
+    z-index: 50;
+  }
+
+  .transition-text {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    font-weight: 700;
+    color: var(--pink6);
+    animation: bounceIn 0.8s ease;
+    text-align: center;
+    line-height: 1.4;
+    padding: 0 20px;
+  }
+
+  .transition-subtext {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    color: var(--pink4);
+    margin-top: 15px;
+    animation: fadeInUp 0.8s ease 0.3s both;
+    text-align: center;
+    padding: 0 20px;
+  }
+
+  /* ===== LEVEL 2 ===== */
+  .draw-instruction {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    font-weight: 700;
+    color: white;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    z-index: 15;
+    text-align: center;
+    pointer-events: none;
+    background: rgba(255,105,180,0.3);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 20px 35px;
+    border-radius: 25px;
+    line-height: 1.5;
+    max-width: 80%;
+  }
+
+  .heart-guide {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -55%);
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0.2;
+  }
+
+  #draw-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 10;
+  }
+
+  .heart-complete-msg {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 700;
+    color: white;
+    text-shadow: 2px 2px 15px rgba(255,20,147,0.6);
+    z-index: 30;
+    text-align: center;
+    animation: bounceIn 0.8s ease;
+    background: rgba(255,20,147,0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 30px 40px;
+    border-radius: 30px;
+    border: 2px solid rgba(255,255,255,0.3);
+    max-width: 85%;
+  }
+
+  .l2-progress-text {
+    position: absolute;
+    bottom: 25px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+    z-index: 20;
+    background: rgba(255,105,180,0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 10px 22px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* ===== LEVEL 3 ===== */
+  .level3-bg {
+    background: linear-gradient(135deg, var(--pink1), var(--pink2), #FFF0F8);
+    position: relative;
+  }
+
+  .proposal-text {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 700;
+    color: var(--pink6);
+    text-align: center;
+    margin-bottom: 50px;
+    z-index: 10;
+    animation: bounceIn 0.8s ease;
+    text-shadow: 2px 2px 0 rgba(255,105,180,0.15);
+    padding: 0 20px;
+  }
+
+  .buttons-container {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    flex-wrap: wrap;
+  }
+
+  .yes-btn {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    padding: 18px 52px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--pink5), var(--pink6));
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 25px rgba(255,105,180,0.4);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    z-index: 15;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .yes-btn:hover {
+    box-shadow: 0 10px 40px rgba(255,105,180,0.6);
+    filter: brightness(1.1);
+  }
+
+  .no-btn {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    padding: 14px 36px;
+    border: 2px solid var(--pink3);
+    border-radius: 50px;
+    background: white;
+    color: var(--pink4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: absolute;
+    z-index: 15;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .no-reaction {
+    position: absolute;
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    font-weight: 600;
+    color: var(--pink6);
+    z-index: 20;
+    animation: fadeInUp 0.5s ease;
+    background: rgba(255,255,255,0.9);
+    padding: 10px 25px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(255,105,180,0.2);
+    white-space: nowrap;
+    pointer-events: none;
+    top: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* ===== FINALE ===== */
+  .finale-bg {
+    background: linear-gradient(135deg, var(--pink2), #FFF0F8, var(--lavender));
+  }
+
+  .finale-text {
+    font-size: clamp(1.5rem, 4.5vw, 2.4rem);
+    font-weight: 700;
+    color: var(--pink6);
+    text-align: center;
+    line-height: 1.5;
+    animation: bounceIn 1s ease;
+    padding: 0 25px;
+    max-width: 700px;
+    text-shadow: 1px 1px 0 rgba(255,105,180,0.15);
+  }
+
+  .finale-hearts {
+    font-size: clamp(40px, 10vw, 70px);
+    margin-bottom: 25px;
+    animation: heartbeat 1.5s ease infinite;
+  }
+
+  /* ===== CONFETTI ===== */
+  .confetti-piece {
+    position: absolute;
+    animation: confettiFall linear forwards;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ===== CAMERA MODE BADGE ===== */
+  .mode-badge {
+    position: absolute;
+    bottom: 80px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
+    z-index: 22;
+    background: rgba(255,105,180,0.35);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 8px 18px;
+    border-radius: 15px;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<div id="game-container"></div>
+
+<!-- Hidden video for MediaPipe -->
+<video id="webcam-video" autoplay playsinline muted style="display:none;"></video>
+
+<script>
+// ============================
+// GAME STATE
+// ============================
+const G = {
+  screen: 'landing',
+  webcam: false,
+  mediapipe: false,
+  mpReady: false,
+  level1: { caught: 0, hearts: [] },
+  level2: { totalDrawn: 0, completed: false },
+  level3: { noCount: 0 },
+};
+
+const MESSAGES = [
+  "Your smile 😊",
+  "Your smell 🌸",
+  "Your cute voice 🎀",
+  "Your hugs 🤗",
+  "Your hot hips 🔥",
+  "Definitely your thighs 👀",
+  "Your care 💗",
+  "Your cry 🥺",
+  "Your pookiness 🐻",
+  "I love you whole, bubu ❤️"
+];
+
+const NO_REACTIONS = [
+  "Are you sure? 🥺",
+  "Really?? Think again! 😢",
+  "My heart is breaking... 💔",
+  "The yes button is growing...\nyou can't escape love! 😤",
+  "Last chance to click No...\noh wait 😏",
+  "Okay this is getting ridiculous 🤣",
+];
+
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+const container = document.getElementById('game-container');
+const videoEl = document.getElementById('webcam-video');
+let handsInstance = null;
+let cameraInstance = null;
+
+// ============================
+// HELPERS
+// ============================
+function clearScreen() {
+  $$('.screen').forEach(s => s.remove());
+}
+
+function createBgHearts() {
+  const emojis = ['💕','💗','💖','💝','🩷','♡','✨'];
+  for (let i = 0; i < 15; i++) {
+    const h = document.createElement('div');
+    h.className = 'bg-heart';
+    h.textContent = emojis[i % emojis.length];
+    h.style.left = Math.random()*100 + '%';
+    h.style.fontSize = (14 + Math.random()*18) + 'px';
+    h.style.animationDuration = (10 + Math.random()*15) + 's';
+    h.style.animationDelay = (Math.random()*12) + 's';
+    container.appendChild(h);
+  }
+}
+
+function sparkles(x, y, n=12) {
+  const colors = ['#FF69B4','#FF1493','#FFB6C1','#FF91A4','#E8D5F5','#FFD700','#FFF'];
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const a = (Math.PI*2*i)/n;
+    const d = 25 + Math.random()*45;
+    s.style.left = x + 'px';
+    s.style.top = y + 'px';
+    s.style.setProperty('--tx', Math.cos(a)*d + 'px');
+    s.style.setProperty('--ty', Math.sin(a)*d + 'px');
+    s.style.background = colors[i % colors.length];
+    const sz = (3 + Math.random()*7);
+    s.style.width = sz + 'px';
+    s.style.height = sz + 'px';
+    container.appendChild(s);
+    setTimeout(() => s.remove(), 800);
+  }
+}
+
+function confetti(count=70) {
+  const colors = ['#FF69B4','#FF1493','#FFB6C1','#FF91A4','#E8D5F5','#FFD700','#FF6B81','#FFA0C0','#C8A2F0'];
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random()*100 + '%';
+    p.style.top = '-15px';
+    p.style.background = colors[i % colors.length];
+    p.style.animationDuration = (2.5 + Math.random()*3) + 's';
+    p.style.animationDelay = (Math.random()*2) + 's';
+    const sz = (5 + Math.random()*12);
+    p.style.width = sz + 'px';
+    p.style.height = sz + 'px';
+    p.style.borderRadius = Math.random()>0.5 ? '50%' : '2px';
+    container.appendChild(p);
+    setTimeout(() => p.remove(), 7000);
+  }
+}
+
+function kawaiiHeart(size=65) {
+  return `<svg viewBox="0 0 80 80" width="${size}" height="${size}">
+    <defs>
+      <linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#FF91A4"/>
+        <stop offset="100%" style="stop-color:#FF1493"/>
+      </linearGradient>
+    </defs>
+    <path d="M40 70 C20 50 0 35 0 22 C0 10 10 0 22 0 C30 0 36 5 40 12 C44 5 50 0 58 0 C70 0 80 10 80 22 C80 35 60 50 40 70Z" fill="url(#hg)"/>
+    <circle cx="28" cy="32" r="3.5" fill="#FFF" opacity="0.9"/>
+    <circle cx="52" cy="32" r="3.5" fill="#FFF" opacity="0.9"/>
+    <circle cx="28" cy="33" r="2" fill="#333"/>
+    <circle cx="52" cy="33" r="2" fill="#333"/>
+    <ellipse cx="20" cy="38" rx="5" ry="3" fill="rgba(255,180,200,0.5)"/>
+    <ellipse cx="60" cy="38" rx="5" ry="3" fill="rgba(255,180,200,0.5)"/>
+    <path d="M 34 44 Q 40 50 46 44" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+// ============================
+// WEBCAM + MEDIAPIPE
+// ============================
+async function setupWebcam() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+    });
+    videoEl.srcObject = stream;
+    await videoEl.play();
+    G.webcam = true;
+    return true;
+  } catch(e) {
+    console.log('No webcam:', e.message);
+    G.webcam = false;
+    return false;
+  }
+}
+
+function loadScript(src) {
+  return new Promise((resolve) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.crossOrigin = 'anonymous';
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.head.appendChild(s);
+    // Timeout safety
+    setTimeout(() => resolve(false), 6000);
+  });
+}
+
+async function setupMediaPipe() {
+  try {
+    const ok1 = await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js');
+    if (!ok1 || !window.Hands) return false;
+    const ok2 = await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js');
+    if (!ok2) return false;
+    G.mediapipe = true;
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+async function startHandTracking(onResults) {
+  if (!G.mediapipe || !G.webcam) return false;
+  try {
+    handsInstance = new window.Hands({
+      locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${f}`
+    });
+    handsInstance.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 0,     // lightest model for tablet
+      minDetectionConfidence: 0.55,
+      minTrackingConfidence: 0.45
+    });
+    handsInstance.onResults(onResults);
+
+    cameraInstance = new window.Camera(videoEl, {
+      onFrame: async () => {
+        if (handsInstance) {
+          try { await handsInstance.send({ image: videoEl }); } catch(e) {}
+        }
+      },
+      width: 640,
+      height: 480
+    });
+    await cameraInstance.start();
+    G.mpReady = true;
+    return true;
+  } catch(e) {
+    console.log('Hand tracking failed:', e);
+    return false;
+  }
+}
+
+function stopHandTracking() {
+  G.mpReady = false;
+  if (cameraInstance) { try { cameraInstance.stop(); } catch(e){} cameraInstance = null; }
+  if (handsInstance) { try { handsInstance.close(); } catch(e){} handsInstance = null; }
+}
+
+function stopWebcam() {
+  stopHandTracking();
+  if (videoEl.srcObject) {
+    videoEl.srcObject.getTracks().forEach(t => t.stop());
+    videoEl.srcObject = null;
+  }
+  G.webcam = false;
+}
+
+// ============================
+// LANDING
+// ============================
+function showLanding() {
+  G.screen = 'landing';
+  clearScreen();
+
+  const s = document.createElement('div');
+  s.className = 'screen';
+  s.style.background = 'linear-gradient(135deg, var(--pink1), var(--pink2), #FFF0F8)';
+  s.innerHTML = `
+    <div class="landing-heart-char">💝</div>
+    <div class="landing-title">A Game For My Bubu</div>
+    <div class="landing-subtitle">💕 3 levels of love await you 💕</div>
+    <button class="kawaii-btn" id="start-btn" style="animation: fadeInUp 1s ease 0.5s both; font-size:1.4rem; padding:20px 64px;">
+      Start 💕
+    </button>
+  `;
+  container.appendChild(s);
+
+  $('#start-btn').onclick = () => showLoading();
+}
+
+// ============================
+// LOADING
+// ============================
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise(resolve => setTimeout(() => resolve(false), ms))
+  ]);
+}
+
+async function showLoading() {
+  G.screen = 'loading';
+  clearScreen();
+
+  const s = document.createElement('div');
+  s.className = 'screen loading-screen';
+  s.innerHTML = `
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Setting up your experience... 💫</div>
+    <div class="loading-substep" id="load-step"></div>
+    <button class="kawaii-btn" id="skip-btn" style="margin-top:30px; font-size:1rem; padding:14px 36px; opacity:0; transition: opacity 0.5s;">
+      Skip → Use Touch Mode 👆
+    </button>
+  `;
+  container.appendChild(s);
+
+  const step = $('#load-step');
+  let skipClicked = false;
+
+  // Show skip button after 4 seconds as safety net
+  setTimeout(() => {
+    const skipBtn = $('#skip-btn');
+    if (skipBtn && G.screen === 'loading') {
+      skipBtn.style.opacity = '1';
+      skipBtn.onclick = () => {
+        skipClicked = true;
+        G.webcam = false;
+        G.mediapipe = false;
+        showLevel1();
+      };
+    }
+  }, 4000);
+
+  // Step 1: Camera (5 second timeout)
+  step.innerHTML = '<span class="loading-step-icon">📷</span> Requesting camera access...';
+  const camOk = await withTimeout(setupWebcam(), 5000);
+
+  if (skipClicked) return;
+
+  if (camOk) {
+    step.innerHTML = '<span class="loading-step-icon">✅</span> Camera ready!';
+    await new Promise(r => setTimeout(r, 500));
+    if (skipClicked) return;
+
+    // Step 2: MediaPipe (8 second timeout)
+    step.innerHTML = '<span class="loading-step-icon">🧠</span> Loading hand tracking... (this may take a moment)';
+    const mpOk = await withTimeout(setupMediaPipe(), 8000);
+
+    if (skipClicked) return;
+
+    if (mpOk) {
+      step.innerHTML = '<span class="loading-step-icon">✅</span> Hand tracking loaded!';
+    } else {
+      step.innerHTML = '<span class="loading-step-icon">👆</span> Hand tracking unavailable — using touch mode!';
+      G.mediapipe = false;
+    }
+  } else {
+    step.innerHTML = '<span class="loading-step-icon">👆</span> No camera — using touch mode!';
+    G.mediapipe = false;
+  }
+
+  if (skipClicked) return;
+
+  await new Promise(r => setTimeout(r, 1000));
+  if (skipClicked) return;
+
+  step.innerHTML = '<span class="loading-step-icon">💕</span> Get ready...';
+  await new Promise(r => setTimeout(r, 700));
+
+  if (skipClicked) return;
+  showLevel1();
+}
+
+// ============================
+// LEVEL 1 — WHY I LUV YOU
+// ============================
+let l1Timer = null;
+let l1Raf = null;
+
+function showLevel1() {
+  G.screen = 'level1';
+  G.level1 = { caught: 0, hearts: [] };
+  clearScreen();
+
+  const useMP = G.webcam && G.mediapipe;
+
+  const s = document.createElement('div');
+  s.className = 'screen';
+  s.style.background = 'transparent';
+  s.innerHTML = `
+    <div class="game-canvas-container">
+      ${G.webcam ?
+        `<video class="video-feed" id="vfeed1" autoplay playsinline muted></video>
+         <div class="camera-overlay"></div>` :
+        `<div class="fallback-bg"></div>`
+      }
+      <div class="game-overlay" id="l1-overlay"></div>
+    </div>
+    <div class="level-header">
+      <div class="level-tag">Level 1</div>
+      <div class="level-title">Why I Luv You ❤️</div>
+    </div>
+    <div id="l1-msg" class="message-bubble" style="display:none;"></div>
+    <div class="progress-container">
+      ${Array(10).fill(0).map((_,i)=>`<span class="progress-heart" id="ph${i}">💗</span>`).join('')}
+    </div>
+    ${useMP ? '<div class="hand-cursor" id="hcursor1"></div>' : ''}
+    <div class="mode-badge">${useMP ? '✋ Catch hearts with your hand!' : '👆 Tap hearts to catch them!'}</div>
+  `;
+  container.appendChild(s);
+
+  // Show webcam feed
+  if (G.webcam) {
+    const vf = $('#vfeed1');
+    if (vf) vf.srcObject = videoEl.srcObject;
+  }
+
+  const overlay = $('#l1-overlay');
+  let handX = -1, handY = -1;
+
+  // Start hand tracking
+  if (useMP) {
+    startHandTracking((results) => {
+      if (G.screen !== 'level1') return;
+      if (results.multiHandLandmarks && results.multiHandLandmarks[0]) {
+        const lm = results.multiHandLandmarks[0];
+        const palm = lm[9]; // mid palm
+        handX = (1 - palm.x) * window.innerWidth;
+        handY = palm.y * window.innerHeight;
+        const c = $('#hcursor1');
+        if (c) { c.style.display = 'block'; c.style.left = handX+'px'; c.style.top = handY+'px'; }
+      }
+    });
+  }
+
+  function catchHeart(h, x, y) {
+    if (h.done || G.level1.caught >= 10) return;
+    h.done = true;
+    h.el.remove();
+    sparkles(x, y, 14);
+    G.level1.caught++;
+
+    const msg = $('#l1-msg');
+    if (msg) {
+      msg.textContent = MESSAGES[G.level1.caught - 1];
+      msg.style.display = 'block';
+      msg.style.animation = 'none';
+      msg.offsetHeight;
+      msg.style.animation = 'popIn 0.5s ease';
+    }
+
+    const ph = $(`#ph${G.level1.caught-1}`);
+    if (ph) ph.classList.add('caught');
+
+    if (G.level1.caught >= 10) {
+      if (l1Timer) clearInterval(l1Timer);
+      setTimeout(() => showTransition1(), 2200);
+    }
+  }
+
+  function spawnHeart() {
+    if (G.level1.caught >= 10 || G.screen !== 'level1') return;
+    const el = document.createElement('div');
+    el.className = 'falling-heart';
+    const xPct = 5 + Math.random()*85;
+    el.style.left = xPct + '%';
+    el.style.top = '-85px';
+    el.innerHTML = kawaiiHeart(55 + Math.random()*20);
+    overlay.appendChild(el);
+
+    const h = { el, y: -85, speed: 1.2 + Math.random()*1.3, done: false, xPct };
+
+    // Tap/click fallback
+    const handle = (e) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      catchHeart(h, rect.left + rect.width/2, rect.top + rect.height/2);
+    };
+    el.addEventListener('click', handle);
+    el.addEventListener('touchstart', handle, { passive: false });
+
+    G.level1.hearts.push(h);
+  }
+
+  function animate() {
+    if (G.screen !== 'level1') return;
+    G.level1.hearts.forEach(h => {
+      if (h.done) return;
+      h.y += h.speed;
+      h.el.style.top = h.y + 'px';
+
+      // Hand tracking collision
+      if (handX > 0) {
+        const rect = h.el.getBoundingClientRect();
+        const hx = rect.left + rect.width/2;
+        const hy = rect.top + rect.height/2;
+        const dist = Math.sqrt((handX-hx)**2 + (handY-hy)**2);
+        if (dist < 65) catchHeart(h, hx, hy);
+      }
+
+      if (h.y > window.innerHeight + 100) { h.el.remove(); h.done = true; }
+    });
+    l1Raf = requestAnimationFrame(animate);
+  }
+
+  l1Timer = setInterval(spawnHeart, 1100);
+  setTimeout(spawnHeart, 200);
+  animate();
+}
+
+// ============================
+// TRANSITION 1
+// ============================
+function showTransition1() {
+  G.screen = 'trans1';
+  if (l1Timer) clearInterval(l1Timer);
+  if (l1Raf) cancelAnimationFrame(l1Raf);
+  stopHandTracking();
+  clearScreen();
+  confetti(50);
+
+  const s = document.createElement('div');
+  s.className = 'screen transition-screen';
+  s.innerHTML = `
+    <div style="font-size:60px; margin-bottom:20px; animation: bounceIn 0.6s ease;">🌟</div>
+    <div class="transition-text">Level Complete!</div>
+    <div class="transition-subtext">You caught all the reasons I love you 💝</div>
+    <button class="kawaii-btn" id="next1" style="margin-top:40px; animation: fadeInUp 0.8s ease 0.7s both;">Next Level →</button>
+  `;
+  container.appendChild(s);
+  $('#next1').onclick = showLevel2;
+}
+
+// ============================
+// LEVEL 2 — WHERE IS MY HEART
+// ============================
+function showLevel2() {
+  G.screen = 'level2';
+  G.level2 = { totalDrawn: 0, completed: false };
+  clearScreen();
+
+  const useMP = G.webcam && G.mediapipe;
+  const guideSize = Math.min(window.innerWidth, window.innerHeight) * 0.45;
+
+  const s = document.createElement('div');
+  s.className = 'screen';
+  s.style.background = 'transparent';
+  s.innerHTML = `
+    <div class="game-canvas-container">
+      ${G.webcam ?
+        `<video class="video-feed" id="vfeed2" autoplay playsinline muted></video>
+         <div class="camera-overlay"></div>` :
+        `<div class="fallback-bg"></div>`
+      }
+      <div class="heart-guide">
+        <svg viewBox="0 0 200 200" width="${guideSize}" height="${guideSize}">
+          <path d="M100 180 C50 130 0 90 0 55 C0 25 25 0 55 0 C75 0 90 12 100 30 C110 12 125 0 145 0 C175 0 200 25 200 55 C200 90 150 130 100 180Z"
+            fill="none" stroke="rgba(255,105,180,0.25)" stroke-width="3" stroke-dasharray="8,8"/>
+        </svg>
+      </div>
+      <canvas id="draw-canvas"></canvas>
+    </div>
+    <div class="level-header">
+      <div class="level-tag">Level 2</div>
+      <div class="level-title">Where Is My Heart? 💕</div>
+    </div>
+    <div class="draw-instruction" id="l2-instr">
+      ${useMP ? 'Point your index finger ☝️<br>and draw a heart in the air!' : 'Draw a heart with your<br>finger or mouse! 💕'}
+    </div>
+    <div class="l2-progress-text" id="l2-prog">Draw a heart shape... 💕</div>
+    ${useMP ? '<div class="hand-cursor" id="hcursor2"></div>' : ''}
+  `;
+  container.appendChild(s);
+
+  if (G.webcam) {
+    const vf = $('#vfeed2');
+    if (vf) vf.srcObject = videoEl.srcObject;
+  }
+
+  const canvas = $('#draw-canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+
+  const THRESHOLD = 280;
+
+  function drawLine(x1,y1,x2,y2) {
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.strokeStyle = 'rgba(255,20,147,0.7)';
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.shadowColor = '#FF69B4';
+    ctx.shadowBlur = 15;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Sparkle trail
+    if (Math.random() > 0.55) {
+      ctx.beginPath();
+      ctx.arc(x2 + (Math.random()-0.5)*20, y2 + (Math.random()-0.5)*20, 2+Math.random()*3, 0, Math.PI*2);
+      ctx.fillStyle = `hsla(${330+Math.random()*30}, 100%, ${70+Math.random()*20}%, ${0.5+Math.random()*0.5})`;
+      ctx.fill();
+    }
+  }
+
+  function addProgress(dist) {
+    if (G.level2.completed) return;
+    G.level2.totalDrawn += dist;
+    const pct = Math.min(100, (G.level2.totalDrawn / THRESHOLD) * 100);
+    const prog = $('#l2-prog');
+    if (prog && pct < 100) prog.textContent = `${Math.floor(pct)}% drawn... keep going! 💕`;
+    if (pct >= 100) completeLevel2();
+  }
+
+  function completeLevel2() {
+    if (G.level2.completed) return;
+    G.level2.completed = true;
+
+    sparkles(window.innerWidth/2, window.innerHeight/2, 25);
+    setTimeout(() => sparkles(window.innerWidth/2, window.innerHeight/2, 20), 200);
+
+    const instr = $('#l2-instr'); if (instr) instr.style.display = 'none';
+    const prog = $('#l2-prog'); if (prog) prog.style.display = 'none';
+
+    const msg = document.createElement('div');
+    msg.className = 'heart-complete-msg';
+    msg.textContent = 'This heart belongs to you boo 💝';
+    container.querySelector('.screen').appendChild(msg);
+
+    setTimeout(() => {
+      msg.textContent = 'One last thing... 💫';
+      msg.style.animation = 'none'; msg.offsetHeight;
+      msg.style.animation = 'bounceIn 0.8s ease';
+    }, 3000);
+
+    setTimeout(() => showTransition2(), 5500);
+  }
+
+  // --- Touch / Mouse drawing ---
+  if (!useMP) {
+    canvas.style.cursor = 'crosshair';
+    let drawing = false, lx = 0, ly = 0;
+
+    canvas.addEventListener('mousedown', (e) => { drawing = true; lx = e.clientX; ly = e.clientY; });
+    canvas.addEventListener('mousemove', (e) => {
+      if (!drawing || G.level2.completed) return;
+      const d = Math.hypot(e.clientX-lx, e.clientY-ly);
+      drawLine(lx, ly, e.clientX, e.clientY);
+      addProgress(d);
+      lx = e.clientX; ly = e.clientY;
+    });
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mouseleave', () => drawing = false);
+
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault(); drawing = true;
+      const t = e.touches[0]; lx = t.clientX; ly = t.clientY;
+    }, { passive: false });
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (!drawing || G.level2.completed) return;
+      const t = e.touches[0];
+      const d = Math.hypot(t.clientX-lx, t.clientY-ly);
+      drawLine(lx, ly, t.clientX, t.clientY);
+      addProgress(d);
+      lx = t.clientX; ly = t.clientY;
+    }, { passive: false });
+    canvas.addEventListener('touchend', () => drawing = false);
+  }
+
+  // --- MediaPipe finger drawing ---
+  if (useMP) {
+    canvas.style.pointerEvents = 'none';
+    let mpLx = 0, mpLy = 0, fingerActive = false;
+
+    // Hide instruction after 4s
+    setTimeout(() => { const i = $('#l2-instr'); if (i) i.style.opacity = '0.5'; }, 4000);
+
+    startHandTracking((results) => {
+      if (G.screen !== 'level2' || G.level2.completed) return;
+      if (results.multiHandLandmarks && results.multiHandLandmarks[0]) {
+        const lm = results.multiHandLandmarks[0];
+        const tip = lm[8];   // index tip
+        const dip = lm[7];   // index DIP
+        const mTip = lm[12]; // middle tip
+        const mPip = lm[10]; // middle PIP
+
+        const x = (1 - tip.x) * window.innerWidth;
+        const y = tip.y * window.innerHeight;
+
+        const cur = $('#hcursor2');
+        if (cur) { cur.style.display = 'block'; cur.style.left = x+'px'; cur.style.top = y+'px'; }
+
+        // Index extended?
+        const indexUp = tip.y < dip.y - 0.015;
+
+        if (indexUp) {
+          if (fingerActive && mpLx > 0) {
+            const d = Math.hypot(x-mpLx, y-mpLy);
+            if (d < 120 && d > 1) {
+              drawLine(mpLx, mpLy, x, y);
+              addProgress(d);
+            }
+          }
+          fingerActive = true;
+          mpLx = x; mpLy = y;
+
+          // Hide instruction
+          const instr = $('#l2-instr');
+          if (instr && instr.style.display !== 'none') instr.style.display = 'none';
+        } else {
+          fingerActive = false;
+        }
+      }
+    });
+  }
+
+  // Handle resize
+  const resizeHandler = () => {
+    if (G.screen !== 'level2') return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  };
+  window.addEventListener('resize', resizeHandler);
+}
+
+// ============================
+// TRANSITION 2
+// ============================
+function showTransition2() {
+  G.screen = 'trans2';
+  stopHandTracking();
+  stopWebcam(); // Done with camera!
+  clearScreen();
+  confetti(40);
+
+  const s = document.createElement('div');
+  s.className = 'screen transition-screen';
+  s.innerHTML = `
+    <div style="font-size:60px; margin-bottom:20px; animation: bounceIn 0.6s ease;">💕</div>
+    <div class="transition-text">Almost there...</div>
+    <div class="transition-subtext">I have something important to ask you ✨</div>
+    <button class="kawaii-btn" id="next2" style="margin-top:40px; animation: fadeInUp 0.8s ease 0.7s both;">I'm ready! 💕</button>
+  `;
+  container.appendChild(s);
+  $('#next2').onclick = showLevel3;
+}
+
+// ============================
+// LEVEL 3 — THE PROPOSAL HYPOTHESIS
+// ============================
+function showLevel3() {
+  G.screen = 'level3';
+  G.level3 = { noCount: 0 };
+  clearScreen();
+
+  const s = document.createElement('div');
+  s.className = 'screen level3-bg';
+  s.id = 'l3screen';
+  s.innerHTML = `
+    <div class="level-header">
+      <div class="level-tag">Level 3</div>
+      <div class="level-title" style="color:var(--pink6); text-shadow:none;">The Proposal Hypothesis 💐</div>
+    </div>
+    <div class="proposal-text" id="proposal">bubu will you be my valentine?? 💐</div>
+    <div class="buttons-container">
+      <button class="yes-btn" id="yes-btn" style="font-size:1.3rem;">Yes 💕</button>
+    </div>
+    <button class="no-btn" id="no-btn" style="font-size:1rem; bottom:18%; right:15%;">No 💔</button>
+    <div id="no-react" class="no-reaction" style="display:none;"></div>
+  `;
+  container.appendChild(s);
+
+  const yesBtn = $('#yes-btn');
+  const noBtn = $('#no-btn');
+  const react = $('#no-react');
+
+  yesBtn.onclick = showFinale;
+
+  noBtn.onclick = () => {
+    G.level3.noCount++;
+    const n = G.level3.noCount;
+
+    // Grow yes
+    yesBtn.style.fontSize = (1.3 + n*0.5) + 'rem';
+    yesBtn.style.padding = `${18 + n*10}px ${52 + n*18}px`;
+    yesBtn.style.boxShadow = `0 ${6+n*4}px ${25+n*10}px rgba(255,105,180,${Math.min(0.8, 0.4+n*0.08)})`;
+
+    // Move & shrink no
+    const mW = window.innerWidth - 120;
+    const mH = window.innerHeight - 120;
+    noBtn.style.left = (30 + Math.random()*mW) + 'px';
+    noBtn.style.top = (30 + Math.random()*mH) + 'px';
+    noBtn.style.right = 'auto';
+    noBtn.style.bottom = 'auto';
+    noBtn.style.fontSize = Math.max(0.5, 1 - n*0.08) + 'rem';
+    noBtn.style.padding = `${Math.max(5, 14-n*2)}px ${Math.max(12, 36-n*5)}px`;
+    noBtn.style.opacity = Math.max(0.25, 1 - n*0.12);
+
+    // Reaction
+    if (n <= NO_REACTIONS.length) {
+      react.textContent = NO_REACTIONS[n-1];
+      react.style.display = 'block';
+      react.style.animation = 'none'; react.offsetHeight;
+      react.style.animation = 'fadeInUp 0.5s ease';
+    }
+
+    // Extra sparkles
+    for (let i = 0; i < n*2; i++) {
+      sparkles(Math.random()*window.innerWidth, Math.random()*window.innerHeight, 4);
+    }
+
+    // After 6 — nuke the No button
+    if (n >= 6) {
+      noBtn.style.display = 'none';
+      react.textContent = "There's only one answer now... 💕";
+
+      yesBtn.style.fontSize = 'clamp(2rem, 7vw, 3.5rem)';
+      yesBtn.style.padding = '50px 100px';
+      yesBtn.style.position = 'fixed';
+      yesBtn.style.top = '55%';
+      yesBtn.style.left = '50%';
+      yesBtn.style.transform = 'translate(-50%, -50%)';
+      yesBtn.style.zIndex = '999';
+      yesBtn.style.boxShadow = '0 20px 80px rgba(255,105,180,0.5)';
+      yesBtn.textContent = 'YES 💕';
+
+      const pt = $('#proposal');
+      if (pt) {
+        pt.style.position = 'fixed';
+        pt.style.top = '18%';
+        pt.style.left = '50%';
+        pt.style.transform = 'translateX(-50%)';
+        pt.style.zIndex = '998';
+        pt.style.width = '90%';
+      }
+    }
+  };
+}
+
+// ============================
+// FINALE
+// ============================
+function showFinale() {
+  G.screen = 'finale';
+  clearScreen();
+
+  confetti(120);
+  setTimeout(() => confetti(80), 1000);
+  setTimeout(() => confetti(60), 2500);
+
+  const s = document.createElement('div');
+  s.className = 'screen finale-bg';
+  s.innerHTML = `
+    <div class="finale-hearts">💕💝💕</div>
+    <div class="finale-text">
+      I knew you'd say yes!<br><br>
+      I love you, my cutie patootie<br>pookie princess ❤️
+    </div>
+    <div style="margin-top:35px; font-size:1.1rem; color:var(--pink4); animation: fadeInUp 1s ease 1s both;">
+      ~ forever yours ~
+    </div>
+  `;
+  container.appendChild(s);
+
+  // Continuous effects
+  setInterval(() => {
+    if (G.screen !== 'finale') return;
+    sparkles(Math.random()*window.innerWidth, Math.random()*window.innerHeight, 4);
+  }, 600);
+  setInterval(() => {
+    if (G.screen !== 'finale') return;
+    confetti(12);
+  }, 3500);
+}
+
+// ============================
+// INIT
+// ============================
+createBgHearts();
+showLanding();
+</script>
+
+</body>
+</html>
